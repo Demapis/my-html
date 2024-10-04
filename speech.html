@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech to Text</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.2em;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            min-height: 100px;
+            word-wrap: break-word;
+            white-space: pre-wrap; /* Preserve line breaks */
+        }
+        #start-btn, #clear-btn, #backspace-btn {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px;
+        }
+        /* Enable contentEditable styling */
+        #result[contenteditable="true"] {
+            outline: none; /* Remove the outline when the div is focused */
+            cursor: text;
+        }
+    </style>
+</head>
+<body>
+    <h1>Speech to Text</h1>
+    <select id="language-select">
+        <option value="en-US">English (US)</option>
+        <option value="en-GB">English (UK)</option>
+        <option value="sw-KE">Kiswahili</option>
+        <option value="fr-FR">French</option>
+        <option value="es-ES">Spanish</option>
+    </select>
+    <br><br>
+    <button id="start-btn">Start Listening</button>
+    <button id="clear-btn">Clear Output</button>
+    <div id="result" contenteditable="true"></div> <!-- Added contenteditable -->
+    
+    <script>
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = false;
+
+            let isRecording = false;
+
+            document.getElementById("start-btn").addEventListener("click", () => {
+                if (!isRecording) {
+                    const selectedLanguage = document.getElementById("language-select").value;
+                    recognition.lang = selectedLanguage;
+                    recognition.start();
+                    document.getElementById("start-btn").innerText = "Listening...";
+                    isRecording = true;
+                } else {
+                    recognition.stop();
+                    document.getElementById("start-btn").innerText = "Start Listening";
+                    isRecording = false;
+                }
+            });
+
+            document.getElementById("clear-btn").addEventListener("click", () => {
+                document.getElementById("result").innerText = ""; // Clear the result area
+            });
+
+            recognition.onresult = (event) => {
+                const speechToText = event.results[event.resultIndex][0].transcript;
+                document.getElementById("result").innerText = (document.getElementById("result").innerText + ' ' + speechToText).trim();
+            };
+
+            recognition.onerror = (event) => {
+                const errorMessage = {
+                    'no-speech': 'No speech was detected. Please try again.',
+                    'audio-capture': 'No microphone was found.',
+                    'not-allowed': 'Permission to use microphone is denied.',
+                };
+                document.getElementById("result").innerText = errorMessage[event.error] || 'Error occurred during recognition.';
+            };
+
+            recognition.onend = () => {
+                if (isRecording) {
+                    document.getElementById("start-btn").innerText = "Start Listening";
+                    isRecording = false;
+                }
+            };
+
+        } else {
+            document.getElementById("result").innerText = "SpeechRecognition is not supported in this browser.";
+        }
+    </script>
+</body>
+</html>
