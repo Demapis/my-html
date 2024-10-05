@@ -26,7 +26,6 @@
             cursor: pointer;
             margin: 10px;
         }
-        /* Enable contentEditable styling */
         #result[contenteditable="true"] {
             outline: none; /* Remove the outline when the div is focused */
             cursor: text;
@@ -45,7 +44,10 @@
     <br><br>
     <button id="start-btn">Start Listening</button>
     <button id="clear-btn">Clear Output</button>
+    <button id="backspace-btn">Backspace</button>
     <div id="result" contenteditable="true"></div> <!-- Added contenteditable -->
+
+    
     
     <script>
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -72,6 +74,15 @@
 
             document.getElementById("clear-btn").addEventListener("click", () => {
                 document.getElementById("result").innerText = ""; // Clear the result area
+            });
+
+            // Backspace functionality
+            document.getElementById("backspace-btn").addEventListener("click", () => {
+                const resultElement = document.getElementById("result");
+                let currentText = resultElement.innerText;
+                if (currentText.length > 0) {
+                    resultElement.innerText = currentText.slice(0, -1); // Remove the last character
+                }
             });
 
             recognition.onresult = (event) => {
